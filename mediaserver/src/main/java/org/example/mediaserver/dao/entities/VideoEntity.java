@@ -1,9 +1,14 @@
 package org.example.mediaserver.dao.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Data
+@Entity
 public class VideoEntity {
     @Id
     private String id;
@@ -11,8 +16,8 @@ public class VideoEntity {
     private String description;
     private String url;
     private int durationSeconds;
-    @ManyToOne
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "creator_id")
     private CreatorEntity creator;
-
 }
