@@ -1,5 +1,6 @@
 package org.example.mediaclient.controllers;
 
+import jakarta.validation.Valid;
 import org.example.mediaclient.dto.UploadVideoDto;
 import org.example.mediaclient.dto.VideoDto;
 import org.example.mediaclient.service.VideoServiceClient;
@@ -13,22 +14,22 @@ public class VideoController {
     @Autowired
     private VideoServiceClient videoService;
     @PostMapping("addVideo")
-    public VideoDto uploadVideo() {
-        Creator creator = Creator.newBuilder()
-                .setName("Xproce")
-                .setEmail("hirchoua.badr@gmail.com")
-                .setId("2")
-                .build();
-        UploadVideoRequest request = UploadVideoRequest.newBuilder()
-                .setTitle("grpc 101")
-                .setDescription("The gRPC 101 is an introductory course to master Grpc")
-                .setUrl("https://github.com/badrhr/gRPC101")
-                .setDurationSeconds(380)
-                .setCreator(creator)
-                .build();
-        VideoDto videoDto = videoService.uploadVideo(request);
-        System.out.println(videoDto);
-        return videoDto;
+    public VideoDto uploadVideo(@Valid @RequestBody UploadVideoDto upload) {
+        Creator.Builder creatorBuilder = Creator.newBuilder();
+
+        if (upload.getCreator().getId() != null) creatorBuilder.setId(upload.getCreator().getId());
+        if (upload.getCreator().getName() != null) creatorBuilder.setName(upload.getCreator().getName());
+        if (upload.getCreator().getEmail() != null) creatorBuilder.setEmail(upload.getCreator().getEmail());
+
+        UploadVideoRequest.Builder requestBuilder = UploadVideoRequest.newBuilder()
+                .setTitle(upload.getTitle())
+                .setCreator(creatorBuilder.build());
+
+        if (upload.getDescription() != null) requestBuilder.setDescription(upload.getDescription());
+        if (upload.getUrl() != null) requestBuilder.setUrl(upload.getUrl());
+        if (upload.getDurationSeconds() > 0) requestBuilder.setDurationSeconds(upload.getDurationSeconds());
+
+        return videoService.uploadVideo(requestBuilder.build());
     }
     @GetMapping("/{id}")
     public VideoDto getVideo(@PathVariable String id) {
